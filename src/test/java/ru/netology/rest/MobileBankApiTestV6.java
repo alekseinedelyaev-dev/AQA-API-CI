@@ -7,28 +7,38 @@ import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 class MobileBankApiTestV6 {
-    private final RequestSpecification requestSpec = new RequestSpecBuilder()
-            .setBaseUri("http://localhost")
-            .setBasePath("/api/v1")
-            .setPort(9999)
-            .setAccept(ContentType.JSON)
-            .setContentType(ContentType.JSON)
-            .log(LogDetail.ALL)
-            .build();
+
+    private final RequestSpecification requestSpec =
+            new RequestSpecBuilder()
+                    .setBaseUri("http://localhost")
+                    .setBasePath("/api/v1")
+                    .setPort(9999)
+                    .setAccept(ContentType.JSON)
+                    .setContentType(ContentType.JSON)
+                    .log(LogDetail.ALL)
+                    .build();
 
     @Test
     void shouldReturnDemoAccounts() {
+
         // Given - When - Then
+
         // Предусловия
         given()
-                .spec(requestSpec) // со спецификацией проще (особенно когда много тестов)
-                // Выполняемые действия
+                .spec(requestSpec)
+
+                // Выполнение запроса
                 .when()
                 .get("/demo/accounts")
-                // Проверки
+
+                // Проверка ответа сервера
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .body(matchesJsonSchemaInClasspath(
+                        "accounts.schema.json"
+                ));
     }
 }
